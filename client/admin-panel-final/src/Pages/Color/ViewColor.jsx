@@ -10,6 +10,8 @@ import axios from "axios";
 export default function ViewColor() {
   let [data, setData] = useState([]);
   // let [orderModal, setOrderModal] = useState(false);
+  let [allIds,setAllIds]=useState([])
+
   let apiBaseUrl = import.meta.env.VITE_APIBASE;
 
   console.log(apiBaseUrl);
@@ -28,6 +30,71 @@ export default function ViewColor() {
     getColors();
   }, []);
   let [activeFilter, setactiveFilter] = useState(true);
+
+
+ let getCheckedValue=(e)=>{
+    if(e.target.checked){
+        // console.log(e.target.value);
+        setAllIds([...allIds,e.target.value])
+    }
+    else{
+        setAllIds(allIds.filter((v)=>v!=e.target.value)) // [10,20,30,40] //[10,30,40]
+    }
+    
+ } 
+
+
+ let deleteRow=()=>{
+
+  if(allIds.length>=1){
+      axios.post(`${apiBaseUrl}/color/multidelete`,{ ids:allIds })
+      .then((res) => res.data)
+      .then((finalRes) => {
+          if(finalRes._status){
+            getColors()
+            setAllIds([])
+          }
+        
+    });
+  }
+  else{
+    alert("Please check one checkBox")
+  }
+    
+ }
+
+  let changeStatus=()=>{
+
+  if(allIds.length>=1){
+      axios.post(`${apiBaseUrl}/color/change-status`,{ ids:allIds })
+      .then((res) => res.data)
+      .then((finalRes) => {
+          if(finalRes._status){
+            getColors()
+            setAllIds([])
+          }
+        
+    });
+  }
+  else{
+    alert("Please check one checkBox")
+  }
+    
+ }
+
+
+ let getAllCheck=(e)=>{
+    if(e.target.checked){
+      //data.map(obj=>obj._id) //[ _id,_id,_id ]
+        setAllIds( data.map(obj=>obj._id) )
+    }
+    else{
+        setAllIds([])
+    }
+ }
+
+//  console.log(allIds);
+ 
   return (
     <section className="w-full">
       <Breadcrumb
@@ -93,6 +160,7 @@ export default function ViewColor() {
 
               <button
                 type="button"
+                onClick={changeStatus}
                 class="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
               >
                 {" "}
@@ -100,6 +168,7 @@ export default function ViewColor() {
               </button>
               <button
                 type="button"
+                onClick={deleteRow}
                 className="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900"
               >
                 Delete{" "}
@@ -118,6 +187,8 @@ export default function ViewColor() {
                           <input
                             id="checkbox-all-search"
                             type="checkbox"
+                            onChange={getAllCheck}
+                            checked={data.length==allIds.length}
                             class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                           />
                           <label for="checkbox-all-search" class="sr-only">
@@ -152,6 +223,9 @@ export default function ViewColor() {
                                 <input
                                   id="checkbox-table-search-1"
                                   type="checkbox"
+                                  value={obj._id}
+                                  onChange={getCheckedValue}
+                                  checked={ allIds.includes(obj._id)  }
                                   class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                                 />
                                 <label

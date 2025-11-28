@@ -1,14 +1,41 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Breadcrumb from '../../common/Breadcrumb'
 import { Link } from 'react-router-dom';
 import { MdFilterAltOff, MdModeEdit, MdModeEditOutline } from 'react-icons/md';
 import { CiEdit } from 'react-icons/ci';
 import { FaFilter } from 'react-icons/fa';
+import axios from 'axios';
 // import { MdModeEditOutline } from "react-icons/md";
 
 export default function ViewCategory() {
   // let [orderModal, setOrderModal] = useState(false);
+   let [data, setData] = useState([]);
 
+     let [path, setPath] = useState('');
+  // let [orderModal, setOrderModal] = useState(false);
+  let [allIds,setAllIds]=useState([])
+
+  let apiBaseUrl = import.meta.env.VITE_APIBASE;
+
+
+
+  let getColors = () => {
+    axios
+      .get(`${apiBaseUrl}/category/view`)
+      .then((res) => res.data)
+      .then((finalRes) => {
+        console.log(finalRes);
+        setPath(finalRes.path) //"http://localhost:8000/uploads/category/",
+        setData(finalRes.data);
+      });
+  };
+
+  useEffect(() => {
+    getColors();
+  }, []);
+
+  console.log(data);
+  
   let [activeFilter, setactiveFilter] = useState(true);
   return (
     <section className="w-full">
@@ -123,7 +150,11 @@ export default function ViewCategory() {
                     </tr>
                   </thead>
                   <tbody>
-                    <tr class="bg-white  dark:bg-gray-800 dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600">
+                    {
+                      data.length>=1?
+                      data.map((obj,index)=>{
+                        return(
+                          <tr class="bg-white  dark:bg-gray-800 dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600">
                       <td class="w-4 p-4">
                         <div class="flex items-center">
                           <input id="checkbox-table-search-1" type="checkbox" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" />
@@ -133,19 +164,26 @@ export default function ViewCategory() {
                       <th scope="row" class="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap dark:text-white">
 
                         <div class="py-4">
-                          <div class="text-base font-semibold">Neil Sims</div>
+                          <div class="text-base font-semibold">
+                            {obj.categoryName}
+                          </div>
 
                         </div>
                       </th>
                       <td class=" py-4">
-                        <img class="w-10 h-10 rounded-full" src="https://packshifts.in/images/iso.png" alt="Jese image" />
+                        <img class="w-10 h-10 rounded-full" src={path+obj.categoryImage} alt="Jese image" />
                       </td>
                       <td class=" py-4">
-                        1
+                        {obj.categoryOrder}
                       </td>
                       <td class=" py-4">
-
-                        <button type="button" class="text-white bg-gradient-to-r from-green-400 via-green-500 to-green-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-green-300 dark:focus:ring-green-800 font-medium rounded-lg text-sm px-5 py-1.5 text-center me-2 mb-2">Active</button>
+                          {
+                              obj.categoryStatus ?
+                                <button type="button" class="text-white bg-gradient-to-r from-green-400 via-green-500 to-green-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-green-300 dark:focus:ring-green-800 font-medium rounded-lg text-sm px-5 py-1.5 text-center me-2 mb-2">Active</button>
+                                :
+                                  <button type="button" class="text-white bg-gradient-to-r from-green-400 via-red-500 to-red-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-green-800 font-medium rounded-lg text-sm px-5 py-1.5 text-center me-2 mb-2">Active</button>
+                          }
+                      
                       </td>
                       <td class=" py-4">
 
@@ -156,43 +194,17 @@ export default function ViewCategory() {
                         </Link>
                       </td>
                     </tr>
+                        )
+                      })
 
-                    <tr class="bg-white  dark:bg-gray-800 dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600">
-                      <td class="w-4 p-4">
-                        <div class="flex items-center">
-                          <input id="checkbox-table-search-1" type="checkbox" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" />
-                          <label for="checkbox-table-search-1" class="sr-only">checkbox</label>
-                        </div>
-                      </td>
-                      <th scope="row" class="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap dark:text-white">
+                      :
+                      <tr>
+                        <td colSpan={6}> No Data Found </td>
+                      </tr>
+                    }
+                    
 
-                        <div class="py-4">
-                          <div class="text-base font-semibold">Neil Sims</div>
-
-                        </div>
-                      </th>
-                      <td class=" py-4">
-                        <img class="w-10 h-10 rounded-full" src="https://packshifts.in/images/iso.png" alt="Jese image" />
-                      </td>
-                      <td class=" py-4">
-                        1
-                      </td>
-                      <td class=" py-4">
-
-
-
-                        <button type="button" class="text-white bg-gradient-to-r from-red-400 via-red-500 to-red-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm px-5 py-1.5 text-center me-2 mb-2">Deactive</button>
-                      </td>
-                      <td class=" py-4">
-
-                      <Link to={`/category/update/${123}`} >
-                          <div className="rounded-[50%] w-[40px] h-[40px] flex items-center justify-center text-white bg-blue-700  border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
-                            <MdModeEdit className='text-[18px]' />
-                          </div>
-                        </Link>
-                      </td>
-                    </tr>
-
+                   
 
 
 

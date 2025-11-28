@@ -6,7 +6,10 @@ let cors=require("cors")
 App.use(cors())
 require("dotenv").config();
 App.use(express.json());
-
+App.use("/uploads/category",express.static("uploads/category")) //Frontend mai permission
+// App.use("/uploads/slider",express.static("uploads/slider")) //Frontend mai permission
+// App.use("/uploads/product",express.static("uploads/product")) //Frontend mai permission
+ 
 App.use("/admin", adminRoutes);
 //http://localhost:8000/admin
 //DB+Connection

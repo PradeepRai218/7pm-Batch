@@ -116,4 +116,34 @@ let colorUpdate = async (req, res) => {
     updateRes,
   });
 };
-module.exports = { colorCreate, colorView, colorDelete, multiDelete,colorUpdate };
+
+
+let changeStatus= async (req, res) =>{
+
+
+  
+   let { ids } = req.body; //[10,20,30]
+  //              //691f23937cd920ae63974d07 = colorStatus  =false 
+  //              //6920753b9511fa6a246d24b5  = colorStatus  =true 
+  
+ let updateRes = await colorModel.updateMany(
+    { _id: ids }, //Condition
+    [
+      {
+        $set:{
+          colorStatus:{
+            $not:"$colorStatus"
+          }
+        }
+      }
+    ]
+    
+  );
+  res.send({
+    _status: true,
+    _message: "Color Status Chnaged",
+    updateRes,
+  });
+ 
+}
+module.exports = { colorCreate, colorView, colorDelete, multiDelete,changeStatus, colorUpdate };

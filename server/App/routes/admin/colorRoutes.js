@@ -1,5 +1,5 @@
 let express=require("express")
-const { colorCreate, colorView, colorDelete, multiDelete, changeStatus } = require("../../controllers/admin/colorController")
+const { colorCreate, colorView, colorDelete, multiDelete, changeStatus, getcolorDetails, colorUpdate } = require("../../controllers/admin/colorController")
 let colorRoutes=express.Router()
 //http://localhost:8000/admin/color/create
 colorRoutes.post('/create',colorCreate)
@@ -14,6 +14,10 @@ colorRoutes.post('/multidelete',multiDelete)
 
 colorRoutes.post('/change-status',changeStatus)
 
+colorRoutes.get('/get-details/:id',getcolorDetails)
+
+
+colorRoutes.put('/update/:id',colorUpdate)
 
 
 

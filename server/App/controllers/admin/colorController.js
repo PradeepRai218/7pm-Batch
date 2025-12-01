@@ -46,9 +46,9 @@ let colorView = async (req, res) => {
   // let filterColor = { {colorName:"red"} }; // ==
   // let filterColor =  {colorName: new RegExp("e","i") } ; // Like
 
-    // let filterColor =  {colorOrder: { $gte:1 } } ; // Grenter Then
+  // let filterColor =  {colorOrder: { $gte:1 } } ; // Grenter Then
 
-     let filterColor = { deletedAt:null } ; // Or
+  let filterColor = { deletedAt: null }; // Or
 
   let data = await colorModel.find(filterColor);
   res.send({
@@ -98,7 +98,8 @@ let multiDelete = async (req, res) => {
 };
 
 let colorUpdate = async (req, res) => {
-  let { id } = req.body;
+  let { id } = req.params;
+  let { colorName, colorCode, colorOrder } = req.body;
   let updateObj = {
     colorName,
     colorCode,
@@ -117,33 +118,47 @@ let colorUpdate = async (req, res) => {
   });
 };
 
+let changeStatus = async (req, res) => {
+  let { ids } = req.body; //[10,20,30]
+  //              //691f23937cd920ae63974d07 = colorStatus  =false
+  //              //6920753b9511fa6a246d24b5  = colorStatus  =true
 
-let changeStatus= async (req, res) =>{
-
-
-  
-   let { ids } = req.body; //[10,20,30]
-  //              //691f23937cd920ae63974d07 = colorStatus  =false 
-  //              //6920753b9511fa6a246d24b5  = colorStatus  =true 
-  
- let updateRes = await colorModel.updateMany(
+  let updateRes = await colorModel.updateMany(
     { _id: ids }, //Condition
     [
       {
-        $set:{
-          colorStatus:{
-            $not:"$colorStatus"
-          }
-        }
-      }
+        $set: {
+          colorStatus: {
+            $not: "$colorStatus",
+          },
+        },
+      },
     ]
-    
   );
   res.send({
     _status: true,
     _message: "Color Status Chnaged",
     updateRes,
   });
- 
-}
-module.exports = { colorCreate, colorView, colorDelete, multiDelete,changeStatus, colorUpdate };
+};
+
+let getcolorDetails =async (req,res) => {
+  let {id}=req.params
+
+   let data = await colorModel.findOne({_id:id}); 
+  res.send({
+    _status: true,
+    _message: "Color Found",
+    data,
+  });
+};
+
+module.exports = {
+  colorCreate,
+  colorView,
+  colorDelete,
+  multiDelete,
+  changeStatus,
+  colorUpdate,
+  getcolorDetails,
+};

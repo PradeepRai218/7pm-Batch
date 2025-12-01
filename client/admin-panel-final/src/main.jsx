@@ -55,9 +55,12 @@ const route = createBrowserRouter(
         <Route path="company-profile" element={<Company_profile />} />
 
         <Route path="color">
+
           <Route path="add" element={<AddColor />}></Route>
           <Route path="update/:id?" element={<AddColor />}></Route>
           <Route path="view" element={<ViewColor />}></Route>
+
+          
         </Route>
 
         

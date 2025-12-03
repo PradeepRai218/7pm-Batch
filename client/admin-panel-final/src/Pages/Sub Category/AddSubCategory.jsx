@@ -4,40 +4,64 @@ import "dropify/dist/css/dropify.min.css";
 import "dropify/dist/js/dropify.min.js";
 import Breadcrumb from "../../common/Breadcrumb";
 import { useForm } from "react-hook-form";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import { MdDelete } from "react-icons/md";
+import axios from "axios";
 
 export default function AddSubCategory() {
-  useEffect(() => {
-    $(".dropify").dropify({
-      messages: {
-        default: "Drag and drop ",
-        replace: "Drag and drop ",
-        remove: "Remove",
-        error: "Oops, something went wrong"
-      }
-    });
-  }, []);
-  
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm();
 
-  const onSubmit = (data) => {
+   let [parentCategorydata,setParentCategorydata]=useState([])
+    let pImage = import.meta.env.VITE_PREVIEWIMAGE;
+  
+    let [imagePreview, setImagepreview] = useState(pImage);
+    let apiBaseUrl = import.meta.env.VITE_APIBASE;
+  
+ 
+    let {id} = useParams()
+    let navigate = useNavigate();
+
+
+  let changeImage = (e) => {
+    //Path URL.createObjectURL(e.target.files[0]) ->State
+    setImagepreview(URL.createObjectURL(e.target.files[0])); //Url  Create
     
   };
-  // update work
-  const [updateIdState, setUpdateIdState] = useState(false)
-  let updateId = useParams().id
-  useEffect(() => {
-    if (updateId == undefined) {
-      setUpdateIdState(false)
-    }
-    else {
-      setUpdateIdState(true)
-    }
-  }, [updateId])
+
+  let saveSubCategory=(e)=>{
+      e.preventDefault();
+    let form = e.target; //Form
+
+    let formValue = new FormData(form); //Form --> Form Data
+    axios
+      .post(`${apiBaseUrl}/subcategory/create`, formValue)
+      .then((res) => res.data)
+      .then((finalRes) => {
+        if (finalRes._status) {
+         
+          setTimeout(() => {
+            navigate("category/sub-category/view");
+          }, 2000);
+        } else {
+          toast.error(finalRes.error.colorName);
+        }
+        
+      });
+  }
+
+  let getParentCategory=()=>{
+       axios
+      .get(`${apiBaseUrl}/subcategory/parent-category`)
+      .then((res) => res.data)
+      .then((finalRes) => {
+        setParentCategorydata(finalRes.data);
+       
+      });
+  }
+
+  useEffect(()=>{
+      getParentCategory()
+  },[])
+
 
   return (
     <section className="w-full">
@@ -47,25 +71,24 @@ export default function AddSubCategory() {
           <h3 className="text-[26px] font-semibold bg-slate-100 py-3 px-4 rounded-t-md border border-slate-400">
             Add Sub Category
           </h3>
-          <form onSubmit={handleSubmit(onSubmit)} autoComplete="off" className="border border-t-0 p-3 rounded-b-md border-slate-400">
+          <form  onSubmit={saveSubCategory} autoComplete="off" className="border border-t-0 p-3 rounded-b-md border-slate-400">
             <div className="flex gap-5">
-              <div className="w-1/3">
-                <label
-                  htmlFor="categoryImage"
-                  className="block  text-md font-medium text-gray-900"
-                >
-                  Category Image
-                </label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  {...register("categoryImage", { required: "Category image is required" })}
-                  id="categoryImage"
-                  className="dropify"
-                  data-height="230"
-                />
-                {errors.categoryImage && <p className="text-red-500">{errors.categoryImage.message}</p>}
-              </div>
+               <div className="relative">
+                                <img src={imagePreview} width={"20%"} alt="" />
+                                <MdDelete
+                                  onClick={() => {
+                                    setImagepreview(pImage);
+                                  }}
+                                  className="absolute right-0 top-0 text-3xl text-red-500"
+                                />
+                                <input  
+                                 onChange={changeImage} 
+                                 type="file"
+                                  name="subcategoryImage"
+                                  
+                                  />
+                              </div>
+              
 
               <div className="w-2/3">
               {/* Parent Category Dropdown */}
@@ -74,13 +97,16 @@ export default function AddSubCategory() {
                     Parent Category Name
                   </label>
                   <select
-                    name="parentCatSelectBox"
+                    name="parentCategory"
                     className="border-2 border-gray-300 text-gray-900 mb-6 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3"
                   >
                     <option value="">Select Category</option>
-                    <option value="Mens">Men's</option>
-                    <option value="Women">Women</option>
-                    <option value="Sale">Sale</option>
+                    {
+                      parentCategorydata.map((obj,index)=>
+                         <option key={index} value={obj._id}> {obj.categoryName} </option> )
+                    }
+                    
+                    
                   </select>
                 </div>
 
@@ -93,12 +119,12 @@ export default function AddSubCategory() {
                   </label>
                   <input
                     type="text"
-                    {...register("categoryName", { required: "Category name is required" })}
+                    name="subcategoryName"
                     id="categoryName"
                     className="text-[19px] border-2 shadow-sm border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full py-2.5 px-3"
                     placeholder="Category Name"
                   />
-                  {errors.categoryName && <p className="text-red-500">{errors.categoryName.message}</p>}
+                 
                 </div>
 
                 <div className="mb-5">
@@ -110,12 +136,13 @@ export default function AddSubCategory() {
                   </label>
                   <input
                     type="text"
-                    {...register("Order", { required: "Category Order is required" })}
+                 
                     id="categoryName"
+                    name="subcategoryOrder"
                     className="text-[19px] border-2 shadow-sm border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full py-2.5 px-3"
                     placeholder="Category Order"
                   />
-                  {errors.Order && <p className="text-red-500">{errors.Order.message}</p>}
+                 
                 </div>
                 
               </div>
@@ -126,7 +153,7 @@ export default function AddSubCategory() {
               type="submit"
               className="focus:outline-none my-5 text-white bg-purple-700 hover:bg-purple-800 focus:ring-4 focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5"
             >
-              {updateIdState ? "Update Sub Category" : "Add Sub Category"}
+              {id ? "Update Sub Category" : "Add Sub Category"}
             </button>
           </form>
 

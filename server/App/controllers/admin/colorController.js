@@ -108,7 +108,7 @@ let colorUpdate = async (req, res) => {
   let updateRes = await colorModel.updateOne(
     { _id: id },
     {
-      $set: updateObj,
+      
     }
   );
   res.send({

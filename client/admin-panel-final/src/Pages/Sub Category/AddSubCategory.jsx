@@ -39,7 +39,7 @@ export default function AddSubCategory() {
         if (finalRes._status) {
          
           setTimeout(() => {
-            navigate("category/sub-category/view");
+            navigate("/category/sub-category/view");
           }, 2000);
         } else {
           toast.error(finalRes.error.colorName);

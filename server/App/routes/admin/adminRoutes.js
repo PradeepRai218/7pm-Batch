@@ -3,12 +3,14 @@ const { colorRoutes } = require("./colorRoutes")
 const { materialRoutes } = require("./materialRoutes")
 const { categoryRoutes } = require("./categoryRoutes")
 const { subcategoryRoutes } = require("./subcategoryRoutes")
+const { subSubcategoryRoutes } = require("./subSubcategoryRoutes")
 let adminRoutes=express.Router()
 
 adminRoutes.use("/color",colorRoutes)
 adminRoutes.use("/material",materialRoutes)
 adminRoutes.use("/category",categoryRoutes)
 adminRoutes.use("/subcategory",subcategoryRoutes)
+adminRoutes.use("/subsubcategory",subSubcategoryRoutes)
 //http://localhost:8000/admin/color
 //http://localhost:8000/admin/login
 // adminRoutes.post("/login",(req,res)=>{

@@ -13,7 +13,7 @@ let subSubcategoryCreate = async (req, res) => {
       req.file.filename != null &&
       req.file.filename != undefined
     ) {
-      insertObj["subSubSubcategoryImage"] = req.file.filename;
+      insertObj["subSubcategoryImage"] = req.file.filename;
     }
   }
   try {

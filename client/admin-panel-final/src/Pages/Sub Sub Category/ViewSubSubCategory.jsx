@@ -1,9 +1,10 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Breadcrumb from '../../common/Breadcrumb'
 import { Link } from 'react-router-dom';
 import { MdFilterAltOff, MdModeEdit, MdModeEditOutline } from 'react-icons/md';
 import { CiEdit } from 'react-icons/ci';
 import { FaFilter } from 'react-icons/fa';
+import axios from 'axios';
 // import { MdModeEditOutline } from "react-icons/md";
 
 export default function ViewCategory() {
@@ -11,6 +12,29 @@ export default function ViewCategory() {
 
   let [activeFilter, setactiveFilter] = useState(true);
   let [activeDropDown, setactiveDropDown] = useState(false);
+  let [data, setData] = useState([]);
+
+  let [path, setPath] = useState("");
+  // let [orderModal, setOrderModal] = useState(false);
+  let [allIds, setAllIds] = useState([]);
+
+  let apiBaseUrl = import.meta.env.VITE_APIBASE;
+
+  let getsubSubCategory = () => {
+    axios
+      .get(`${apiBaseUrl}/subsubcategory/view`)
+      .then((res) => res.data)
+      .then((finalRes) => {
+        console.log(finalRes);
+        setPath(finalRes.path); //"http://localhost:8000/uploads/category/",
+        setData(finalRes.data);
+      });
+  };
+
+  useEffect(() => {
+    getsubSubCategory();
+  }, []);
+
   return (
     <section className="w-full">
 
@@ -139,7 +163,10 @@ export default function ViewCategory() {
                     </tr>
                   </thead>
                   <tbody>
-                    <tr class="bg-white  dark:bg-gray-800 dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600">
+                    {
+                      data.map((obj,index)=>{
+                        return(
+                          <tr class="bg-white  dark:bg-gray-800 dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600">
                       <td class="w-4 p-4">
                         <div class="flex items-center">
                           <input id="checkbox-table-search-1" type="checkbox" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" />
@@ -148,17 +175,21 @@ export default function ViewCategory() {
                       </td>
                       <td scope="row" class=" px-6 py-4 text-gray-900 ">
 
-                      Men
+                      {obj.parentCategory.categoryName}
                       </td>
                       <td class=" py-4">
-                        Men
+                         {obj.subCategory.subcategoryName}
                       </td>
                       <td class=" py-4">
-                        Shoe
+                        {obj.subSubcategoryName}
                       </td>
                       
                       <td class=" py-4">
-                        <img class="w-10 h-10 rounded-full" src="https://packshifts.in/images/iso.png" alt="Jese image" />
+                        <img class="w-10 h-10 rounded-full" 
+                        src={path+obj.subSubcategoryImage}
+                        
+                        
+                        alt="Jese image" />
                       </td>
                       <td class=" py-4">
                         1
@@ -176,6 +207,10 @@ export default function ViewCategory() {
                         </Link>
                       </td>
                     </tr>
+                        )
+                      })
+                    }
+                    
 
 
                     

@@ -6,7 +6,60 @@ const { subSubcategoryModel } = require("../../models/subSubCategory.model");
 //Sub Category
 
 let productCreate = async (req, res) => {
-  res.send("Hello");
+    // console.log(req.body);
+    let insertObj={ ...req.body }
+
+if(req.files){
+      if(req.files.productImage){
+          insertObj['productImage']=req.files.productImage[0].filename
+      }
+      if(req.files.productbackImage){
+          insertObj['productbackImage']=req.files.productbackImage[0].filename
+      }
+        if(req.files.productGallery){
+          insertObj['productGallery']=req.files.productGallery.map((obj)=>obj.filename)
+      }
+}
+
+ try {
+    let product = await productModel(insertObj);
+    let productRes = await product.save();
+
+    // let productRes=await productModel.insertOne(inserObj)
+    res.send({
+      _status: true,
+      _message: "product Added",
+      productRes,
+    });
+  } catch (err) {
+    //MongoServerError //unique
+
+    //  console.log(err);
+    let error = {};
+    //
+    if (err.code == "11000") {
+      // unique
+      error["categoryName"] = "category name alredy exist...";
+    }
+    for (let key in err.errors) {
+      error[key] = err.errors[key].message;
+      console.log(key, err.errors[key].message);
+    }
+
+    res.send({
+      _status: false,
+      _message: "Error Found",
+      error,
+    });
+  }
+
+console.log(insertObj);
+
+
+    // console.log(req.files); //Array
+   res.send("hello")
+    
+
 };
 let productView = async (req, res) => {
   // let filterproduct = { {productName:"red"} }; // ==

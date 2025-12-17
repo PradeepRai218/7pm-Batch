@@ -7,94 +7,91 @@ import { FaFilter } from "react-icons/fa";
 import axios from "axios";
 // import { MdModeEditOutline } from "react-icons/md";
 
+import ResponsivePagination from "react-responsive-pagination";
+import "react-responsive-pagination/themes/classic-light-dark.css";
+
 export default function ViewColor() {
   let [data, setData] = useState([]);
   // let [orderModal, setOrderModal] = useState(false);
-  let [allIds,setAllIds]=useState([])
-
+  let [allIds, setAllIds] = useState([]);
+  let [page, setPage] = useState(1); //2
+  let [totPage, settotPage] = useState(0); //3
   let apiBaseUrl = import.meta.env.VITE_APIBASE;
 
   console.log(apiBaseUrl);
 
   let getColors = () => {
     axios
-      .get(`${apiBaseUrl}/color/view`)
+      .get(`${apiBaseUrl}/color/view`, {
+        params: {
+          page,
+        },
+      })
       .then((res) => res.data)
       .then((finalRes) => {
         console.log(finalRes);
         setData(finalRes.data);
+        settotPage(finalRes.totPage);
       });
   };
 
   useEffect(() => {
     getColors();
-  }, []);
+  }, [page]);
   let [activeFilter, setactiveFilter] = useState(true);
 
-
- let getCheckedValue=(e)=>{
-    if(e.target.checked){
-        // console.log(e.target.value);
-        setAllIds([...allIds,e.target.value])
+  let getCheckedValue = (e) => {
+    if (e.target.checked) {
+      // console.log(e.target.value);
+      setAllIds([...allIds, e.target.value]);
+    } else {
+      setAllIds(allIds.filter((v) => v != e.target.value)); // [10,20,30,40] //[10,30,40]
     }
-    else{
-        setAllIds(allIds.filter((v)=>v!=e.target.value)) // [10,20,30,40] //[10,30,40]
+  };
+
+  let deleteRow = () => {
+    if (allIds.length >= 1) {
+      axios
+        .post(`${apiBaseUrl}/color/multidelete`, { ids: allIds })
+        .then((res) => res.data)
+        .then((finalRes) => {
+          if (finalRes._status) {
+            getColors();
+            setAllIds([]);
+          }
+        });
+    } else {
+      alert("Please check one checkBox");
     }
-    
- } 
+  };
 
-
- let deleteRow=()=>{
-
-  if(allIds.length>=1){
-      axios.post(`${apiBaseUrl}/color/multidelete`,{ ids:allIds })
-      .then((res) => res.data)
-      .then((finalRes) => {
-          if(finalRes._status){
-            getColors()
-            setAllIds([])
+  let changeStatus = () => {
+    if (allIds.length >= 1) {
+      axios
+        .post(`${apiBaseUrl}/color/change-status`, { ids: allIds })
+        .then((res) => res.data)
+        .then((finalRes) => {
+          if (finalRes._status) {
+            getColors();
+            setAllIds([]);
           }
-        
-    });
-  }
-  else{
-    alert("Please check one checkBox")
-  }
-    
- }
+        });
+    } else {
+      alert("Please check one checkBox");
+    }
+  };
 
-  let changeStatus=()=>{
-
-  if(allIds.length>=1){
-      axios.post(`${apiBaseUrl}/color/change-status`,{ ids:allIds })
-      .then((res) => res.data)
-      .then((finalRes) => {
-          if(finalRes._status){
-            getColors()
-            setAllIds([])
-          }
-        
-    });
-  }
-  else{
-    alert("Please check one checkBox")
-  }
-    
- }
-
-
- let getAllCheck=(e)=>{
-    if(e.target.checked){
+  let getAllCheck = (e) => {
+    if (e.target.checked) {
       //data.map(obj=>obj._id) //[ _id,_id,_id ]
-        setAllIds( data.map(obj=>obj._id) )
+      setAllIds(data.map((obj) => obj._id));
+    } else {
+      setAllIds([]);
     }
-    else{
-        setAllIds([])
-    }
- }
+  };
 
-//  console.log(allIds);
- 
+  //  console.log(allIds);
+
   return (
     <section className="w-full">
       <Breadcrumb
@@ -188,13 +185,16 @@ export default function ViewColor() {
                             id="checkbox-all-search"
                             type="checkbox"
                             onChange={getAllCheck}
-                            checked={data.length==allIds.length}
+                            checked={data.length == allIds.length}
                             class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                           />
                           <label for="checkbox-all-search" class="sr-only">
                             checkbox
                           </label>
                         </div>
+                      </th>
+                      <th scope="col" class="px-6 py-3">
+                        Sr No
                       </th>
                       <th scope="col" class="px-6 py-3">
                         Color Name
@@ -225,7 +225,7 @@ export default function ViewColor() {
                                   type="checkbox"
                                   value={obj._id}
                                   onChange={getCheckedValue}
-                                  checked={ allIds.includes(obj._id)  }
+                                  checked={allIds.includes(obj._id)}
                                   class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                                 />
                                 <label
@@ -235,6 +235,9 @@ export default function ViewColor() {
                                   checkbox
                                 </label>
                               </div>
+                            </td>
+                            <td>
+                              {(page - 1) * 3 + index + 1}
                             </td>
                             <th
                               scope="row"
@@ -249,24 +252,21 @@ export default function ViewColor() {
                             <td class=" py-4"> {obj.colorCode}</td>
                             <td class=" py-4">{obj.colorOrder}</td>
                             <td class=" py-4">
-                              {
-                                obj.colorStatus ?
+                              {obj.colorStatus ? (
                                 <button
-                                type="button"
-                                class="text-white bg-gradient-to-r from-green-400 via-green-500 to-green-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-green-300 dark:focus:ring-green-800 font-medium rounded-lg text-sm px-5 py-1.5 text-center me-2 mb-2"
-                              >
-                                Active
-                              </button>
-                              :
-                              <button
-                                type="button"
-                                class="text-white bg-gradient-to-r from-red-400 via-red-500 to-red-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-green-300 dark:focus:ring-green-800 font-medium rounded-lg text-sm px-5 py-1.5 text-center me-2 mb-2"
-                              >
-                                Deactive
-                              </button>
-
-                              }
-                              
+                                  type="button"
+                                  class="text-white bg-gradient-to-r from-green-400 via-green-500 to-green-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-green-300 dark:focus:ring-green-800 font-medium rounded-lg text-sm px-5 py-1.5 text-center me-2 mb-2"
+                                >
+                                  Active
+                                </button>
+                              ) : (
+                                <button
+                                  type="button"
+                                  class="text-white bg-gradient-to-r from-red-400 via-red-500 to-red-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-green-300 dark:focus:ring-green-800 font-medium rounded-lg text-sm px-5 py-1.5 text-center me-2 mb-2"
+                                >
+                                  Deactive
+                                </button>
+                              )}
                             </td>
                             <td class=" py-4">
                               <Link to={`/color/update/${obj._id}`}>
@@ -285,6 +285,12 @@ export default function ViewColor() {
                     )}
                   </tbody>
                 </table>
+
+                <ResponsivePagination
+                  current={page}
+                  total={totPage}
+                  onPageChange={setPage}
+                />
               </div>
             </div>
           </div>

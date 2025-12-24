@@ -6,22 +6,24 @@ const { subSubcategoryModel } = require("../../models/subSubCategory.model");
 //Sub Category
 
 let productCreate = async (req, res) => {
-    // console.log(req.body);
-    let insertObj={ ...req.body }
+  // console.log(req.body);
+  let insertObj = { ...req.body };
 
-if(req.files){
-      if(req.files.productImage){
-          insertObj['productImage']=req.files.productImage[0].filename
-      }
-      if(req.files.productbackImage){
-          insertObj['productbackImage']=req.files.productbackImage[0].filename
-      }
-        if(req.files.productGallery){
-          insertObj['productGallery']=req.files.productGallery.map((obj)=>obj.filename)
-      }
-}
+  if (req.files) {
+    if (req.files.productImage) {
+      insertObj["productImage"] = req.files.productImage[0].filename;
+    }
+    if (req.files.productbackImage) {
+      insertObj["productbackImage"] = req.files.productbackImage[0].filename;
+    }
+    if (req.files.productGallery) {
+      insertObj["productGallery"] = req.files.productGallery.map(
+        (obj) => obj.filename
+      );
+    }
+  }
 
- try {
+  try {
     let product = await productModel(insertObj);
     let productRes = await product.save();
 
@@ -53,13 +55,10 @@ if(req.files){
     });
   }
 
-console.log(insertObj);
+  console.log(insertObj);
 
-
-    // console.log(req.files); //Array
-   res.send("hello")
-    
-
+  // console.log(req.files); //Array
+  res.send("hello");
 };
 let productView = async (req, res) => {
   // let filterproduct = { {productName:"red"} }; // ==
@@ -67,19 +66,88 @@ let productView = async (req, res) => {
 
   // let filterproduct =  {productOrder: { $gte:1 } } ; // Grenter Then
 
-  let filterproduct = { deletedAt: null }; // Or
+  // let filterproduct = { deletedAt: null }; // Or
+const andCondition = [
+    {
+        deletedAt : null, 
+    }
+];
+
+const orCondition = [   ];
+
+
+if(req.query.productName != undefined && req.query.productName !="" ){ //True
+    
+        orCondition.push({ productName : new RegExp(req.query.productName,"i") })
+    
+}
+
+
+if(req.query.productOrder != undefined && req.query.productOrder !="" ){
+    
+        orCondition.push({ productOrder : req.query.productOrder })
+    
+}
+
+if(andCondition.length > 0){
+    var filter = { $and : andCondition }
+} else {
+    var filter = {}
+}
+
+//filter={ $and:[ { deletedAt:null } ] }
+
+
+
+
+
+if(orCondition.length > 0){
+    filter.$or = orCondition;
+}
+
+
+
+//filter={ $and:[ { deletedAt:null } ],$or:[ { productName: 'Mast & Harbour' }, { productOrder: '2' } ] }
+// //orCondition=[
+//   {
+//     productName:'Iphone'
+//   },
+//   {
+//     productOrder:'1'
+//   }
+// ]
+
+
 
   let data = await productModel
-    .find(filterproduct)
+    .find(filter)
     .populate("parentCategory", "categoryName")
-    .populate("subCategory", "subcategoryName");
+    .populate("subCategory", "subcategoryName")
+    .populate("subsubCategory", "subSubcategoryName")
+    .populate("productColor", "colorName");
 
   res.send({
     _status: true,
     _message: "product Found",
-    path: process.env.productIMAGESTATICPATH,
+    path: process.env.PRODUCTIMAGESTATICPATH,
     data,
   });
+};
+
+let productDetails = async (req, res) => {
+  let { id } = req.params;
+  let productDetails = await productModel
+    .findOne({ _id: id })
+    .populate("parentCategory", "categoryName")
+    .populate("subCategory", "subcategoryName")
+    .populate("subsubCategory", "subSubcategoryName")
+    .populate("productColor", "colorName");
+    res.send({
+      _status: true,
+      _message: "product Found",
+      path: process.env.PRODUCTIMAGESTATICPATH,
+      productDetails,
+    });
 };
 
 let parentCategory = async (req, res) => {
@@ -125,11 +193,8 @@ let subsubCategory = async (req, res) => {
   });
 };
 
-let getColor= async (req, res) => {
-
-  let data = await colorModel
-    .find({ colorStatus: true })
-    .select("colorName");
+let getColor = async (req, res) => {
+  let data = await colorModel.find({ colorStatus: true }).select("colorName");
 
   res.send({
     _status: true,
@@ -138,8 +203,6 @@ let getColor= async (req, res) => {
     data,
   });
 };
-
-
 
 let productDelete = async (req, res) => {
   //Soft Delete | Update
@@ -233,5 +296,6 @@ module.exports = {
   productUpdate,
   parentCategory,
   subsubCategory,
-  getColor
+  getColor,
+  productDetails,
 };

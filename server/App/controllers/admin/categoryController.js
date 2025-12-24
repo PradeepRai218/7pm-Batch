@@ -1,3 +1,4 @@
+const { createSlug } = require("../../config/helper");
 const { categoryModel } = require("../../models/category.model");
 
 let categoryCreate = async (req, res) => {
@@ -12,6 +13,10 @@ let categoryCreate = async (req, res) => {
       insertObj["categoryImage"] = req.file.filename;
     }
   }
+
+  insertObj['slug']=createSlug(req.body.categoryName)
+
+
   try {
     let category = await categoryModel(insertObj);
     let categoryRes = await category.save();

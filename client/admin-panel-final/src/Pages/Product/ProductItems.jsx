@@ -10,13 +10,27 @@ export default function ProductItems() {
 
   let [path, setPath] = useState("");
   // let [orderModal, setOrderModal] = useState(false);
-  let [allIds, setAllIds] = useState([]);
+  let [allIds, setAllIds] = useState([
+    
+  ]);
+
+
+  let [searchObj,setSearchObj]=useState(
+    {
+      productName:'',
+      productOrder:''
+    }
+  )
 
   let apiBaseUrl = import.meta.env.VITE_APIBASE;
 
   let getProducts = () => {
     axios
-      .get(`${apiBaseUrl}/product/view`)
+      .get(`${apiBaseUrl}/product/view`,
+        {
+          params:searchObj
+        }
+      )
       .then((res) => res.data)
       .then((finalRes) => {
         console.log(finalRes);
@@ -28,6 +42,11 @@ export default function ProductItems() {
   useEffect(() => {
     getProducts();
   }, []);
+
+  useEffect(()=>{
+    console.log(searchObj);
+    
+  },[searchObj])
 
 
   let productDetails=(id)=>{
@@ -172,6 +191,37 @@ export default function ProductItems() {
 
       <Breadcrumb path={"Product"} path2={"Product Items"} slash={"/"} />
       <div className="w-full min-h-[610px]">
+
+      <div className="max-w-[1220px] mx-auto">
+         <h3 className="text-2xl font-bold">Product Search</h3>   
+      </div>  
+       <div className="max-w-[1220px] mx-auto gap-5 grid grid-cols-4 mt-3">
+          <div className="border">
+              <input type="text" onChange={
+                (e)=>{
+                    let obj={...searchObj}
+                    obj[e.target.name]=e.target.value
+                    setSearchObj(obj)
+                }
+              
+              }  name="productName" className="border-1 ps-3 w-[100%] h-[50px]" placeholder="Product Title"/>
+          </div>
+          <div className="border">
+              <input type="text"
+              onChange={
+                (e)=>{
+                    let obj={...searchObj}
+                    obj[e.target.name]=e.target.value
+                    setSearchObj(obj)
+                }
+              }
+                
+              name="productOrder" className="border-1  ps-3 w-[100%] h-[50px]" placeholder="Product Order"/>
+          </div>
+          <div>
+            <button onClick={()=>getProducts()} className="bg-red-500 p-3">Search</button>
+          </div>
+       </div>
         <div className="max-w-[1220px] mx-auto py-5">
           <h3 className="text-[26px] font-semibold bg-slate-100 py-3 px-4 rounded-t-md border border-slate-400">
             Product Items

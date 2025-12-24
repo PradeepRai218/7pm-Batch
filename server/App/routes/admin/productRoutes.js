@@ -1,7 +1,7 @@
 let express=require("express")
 
 const { fileUpload } = require("../../middleware/fileUpload")
-const { parentCategory, productView, productCreate, subCategory, subsubCategory, getColor } = require("../../controllers/admin/productController")
+const { parentCategory, productView, productCreate, subCategory, subsubCategory, getColor, productDetails } = require("../../controllers/admin/productController")
 
 let productRoutes=express.Router()
 let upload=fileUpload("uploads/products")
@@ -32,6 +32,6 @@ productRoutes.get("/sub-sub-category/:parentid",subsubCategory)
 productRoutes.get("/color",getColor)
 
 
-
+productRoutes.get("/details/:id",productDetails)
 
 module.exports={productRoutes}

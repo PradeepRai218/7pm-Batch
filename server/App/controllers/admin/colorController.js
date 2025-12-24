@@ -48,13 +48,27 @@ let colorView = async (req, res) => {
 
   // let filterColor =  {colorOrder: { $gte:1 } } ; // Grenter Then
 
+  let {page}=req.query
+
+  let limit=3
+
+  let skip=(page-1)*limit
+
   let filterColor = { deletedAt: null }; // Or
 
-  let data = await colorModel.find(filterColor);
+  let data = await colorModel.find(filterColor).skip(skip).limit(limit); 
+
+  let totData = await colorModel.find(filterColor) ///
+
+  
+
+
   res.send({
     _status: true,
     _message: "Color Found",
     data,
+    tot:totData.length, //8
+    totPage: Math.ceil(totData.length/limit)
   });
 };
 

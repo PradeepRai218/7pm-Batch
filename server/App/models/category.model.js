@@ -24,6 +24,9 @@ let categorySchema = mongoose.Schema({
         type:Boolean,
         default:false
     },
+    slug:{
+        type:String
+    },
     deletedAt:{
         type:Date,
         default:null

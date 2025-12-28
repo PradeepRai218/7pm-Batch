@@ -3,9 +3,13 @@ import React, { useState } from "react";
 import Breadcrumds from "../common/Breadcrumds";
 import Link from "next/link";
 import axios from "axios";
+import { useDispatch } from "react-redux";
+import { setToken } from "../redux/slice/userSlice";
+import { redirect } from "next/navigation";
 
 export default function Page() {
   let pageName = "My Account";
+  let dispatch= useDispatch()
 
   let baseUrl = process.env.NEXT_PUBLIC_BASEURL;
   // Login states
@@ -46,11 +50,25 @@ export default function Page() {
     if (!loginPassword) errors.password = "Password is required.";
     setLoginErrors(errors);
 
-    if (Object.keys(errors).length === 0) {
-      alert("✅ Login successful!");
-      setLoginEmail("");
-      setLoginPassword("");
-    }
+    let obj = {
+      userEmail: loginEmail,
+      userPassword: loginPassword,
+    };
+
+    axios
+      .post(`${baseUrl}user/login`, obj)
+      .then((res) => res.data)
+      .then((finalRes) => {
+        if (finalRes.status) {
+           
+          dispatch(setToken( {token:finalRes.token} ))
+          alert(finalRes.message);
+          redirect("/Deshbord");
+
+        } else {
+          alert(finalRes.message);
+        }
+      });
   };
 
   // ---------------- REGISTER HANDLER ----------------
@@ -83,29 +101,24 @@ export default function Page() {
     }
 
     let obj = {
-      userName:registerName,
-      userEmail:registerEmail,
-      userPhone:registerPhone,
-      userPassword:registerPassword,
-      OTP:otp,
+      userName: registerName,
+      userEmail: registerEmail,
+      userPhone: registerPhone,
+      userPassword: registerPassword,
+      OTP: otp,
     };
     axios
       .post(`${baseUrl}user/create`, obj)
       .then((res) => res.data)
       .then((finalRes) => {
-      
         if (finalRes.status) {
           alert(finalRes.message);
-         
         } else {
           alert(finalRes.message);
         }
       });
 
-
-    
     setOtpError("");
-   
   };
 
   // ---------------- FORGET PASSWORD HANDLER ----------------
@@ -196,12 +209,9 @@ export default function Page() {
               </div>
 
               <div className="flex justify-end mt-6">
-                <Link
-                  href=""
-                  className="bg-gray-800 hover:bg-[#b76e79] text-white px-6 py-2 rounded-lg transition duration-300"
-                >
+                <button className="bg-gray-800 hover:bg-[#b76e79] text-white px-6 py-2 rounded-lg transition duration-300">
                   Login
-                </Link>
+                </button>
               </div>
             </form>
           ) : (

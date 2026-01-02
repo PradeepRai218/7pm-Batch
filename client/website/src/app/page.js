@@ -6,13 +6,19 @@ import Bgimfsection from "./Components/Home-components/Bgimfsection";
 import Cardscroll from "./Components/Home-components/Cardscroll";
 import Threedivsection from "./Components/Home-components/Threedivsection";
 import Bottomslider from "./Components/Home-components/Bottomslider";
+import { getProducttabsData } from "./api-services/homeServices";
 
-export default function Home() {
+export default async function Home() {
+
+  let productData=await getProducttabsData(1);
+  // console.log(productData);
+  
+
   return (
     <div>
       <Bannersection/>
       <Collection/>
-      <Tabsection/>
+      <Tabsection productData={productData}/>
       <Bgimfsection/>
       <Cardscroll/>
       <Threedivsection/>

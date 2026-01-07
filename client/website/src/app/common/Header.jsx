@@ -5,10 +5,17 @@ import { FaSearch, FaHeart, FaShoppingCart, FaAngleDown } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import { clearToken } from "../redux/slice/userSlice";
 import { redirect } from "next/navigation";
+import { fetchCart } from "../redux/slice/cartSlice";
 
 export default function Header() {
   let token = useSelector((myAllsore) => myAllsore.userStore.token);
+
+  
+  
   let dispatch=  useDispatch()
+
+
+
   let [click, setClick] = useState(false);
 
   let handleclick = () => {
@@ -29,6 +36,12 @@ export default function Header() {
     dispatch(clearToken())
     redirect('/Login-Register')
   }
+useEffect(()=>{
+  dispatch(fetchCart())
+},[token])
+
+let cart=useSelector((myAllsore) => myAllsore.cartStore.cart);
+
 
   return (
     <header className="w-full font-poppins sticky top-0 z-50 bg-white text-black">
@@ -78,88 +91,17 @@ export default function Header() {
               </button>
             </Link>
 
-            {click && (
-              <div className="fixed top-0 right-0 w-[500px] h-full bg-white shadow-2xl border-l border-gray-200 z-50 p-6 overflow-y-auto duration-1000">
-                {/* === Header === */}
-                <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-2xl font-semibold text-gray-800">
-                    Your Cart
-                  </h2>
-                  <button
-                    onClick={handleclose}
-                    className="text-gray-500 hover:text-[#C09578] text-2xl font-bold cursor-pointer"
-                  >
-                    &times;
-                  </button>
-                </div>
-
-                {/* === Cart Items === */}
-                <div className="space-y-4">
-                  {/* Example Item */}
-                  <div className="flex items-center justify-between border-b pb-4">
-                    <div className="flex items-center gap-4">
-                      <img
-                        src="https://via.placeholder.com/80"
-                        alt="product"
-                        className="w-20 h-20 object-cover rounded-lg"
-                      />
-                      <div>
-                        <h3 className="text-lg font-medium text-gray-800">
-                          Wooden Chair
-                        </h3>
-                        <p className="text-sm text-gray-500">Qty: 2</p>
-                      </div>
-                    </div>
-                    <span className="text-[#C09578] font-semibold text-lg">
-                      $120
-                    </span>
-                  </div>
-
-                  <div className="flex items-center justify-between border-b pb-4">
-                    <div className="flex items-center gap-4">
-                      <img
-                        src="https://via.placeholder.com/80"
-                        alt="product"
-                        className="w-20 h-20 object-cover rounded-lg"
-                      />
-                      <div>
-                        <h3 className="text-lg font-medium text-gray-800">
-                          Sofa Set
-                        </h3>
-                        <p className="text-sm text-gray-500">Qty: 1</p>
-                      </div>
-                    </div>
-                    <span className="text-[#b76e79] font-semibold text-lg">
-                      $250
-                    </span>
-                  </div>
-                </div>
-
-                {/* === Footer (Total + Button) === */}
-                <div className="mt-8 border-t pt-4">
-                  <div className="flex justify-between items-center mb-4">
-                    <span className="text-lg font-semibold text-gray-700">
-                      Total
-                    </span>
-                    <span className="text-xl font-bold text-[#b76e79]">
-                      $370
-                    </span>
-                  </div>
-                  <button className="w-full bg-[#C09578] text-white py-3 rounded-lg hover:bg-[#C09578] transition">
-                    Proceed to Checkout
-                  </button>
-                </div>
-              </div>
-            )}
-
+           
+          <Link href={'/cart'}>
             <button
-              onClick={handleclick}
+              
               className="border border-gray-300 rounded-full px-4 py-2 flex items-center gap-2 cursor-pointer hover:border-[#b76e79] hover:text-[#b76e79] transition"
             >
               <span className="text-sm text-black">Add to Cart</span>
-              <FaShoppingCart />
+              <FaShoppingCart /> ({cart.length})
               <FaAngleDown />
             </button>
+            </Link>
           </div>
         </div>
       </div>
